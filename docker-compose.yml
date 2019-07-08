@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+  app:
+    container_name: app
+    build: ./app
+    restart: always
+    volumes:
+      - "$PWD/app/data:/usr/local/www/app"  #DJANGO APP
+    working_dir: /usr/local/www/app
+    #command: python manage.py runserver 0.0.0.0:8000  #Developing server
+    command: uwsgi --ini app_uwsgi.ini  #Production
+    depends_on:
+      - db
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "$PWD/nginx/config:/etc/nginx/conf.d"
+      - "$PWD/app/data/static:/usr/share/nginx/html"  #STATIC
+      - "$PWD/nginx/log:/var/log/nginx"  #LOG
+    links:
+      - app
+
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    env_file: $PWD/db/env/db.env
+    volumes:
+      - "$PWD/db/data:/var/lib/postgresql/data"  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
