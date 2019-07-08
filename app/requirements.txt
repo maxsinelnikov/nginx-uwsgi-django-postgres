@@ -1,4 +1,4 @@
-Django==2.2.2
-uwsgi==2.0.18
-psycopg2==2.8.3
+Django
+uwsgi
+psycopg2
 pillow
